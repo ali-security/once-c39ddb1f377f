@@ -11,20 +11,29 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          fetch-tags: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm to latest
+        run: npm install -g npm@latest
 
       - name: Install Dependencies
         run: npm install
 
       - name: Create Release Pull Request or Publish
-        id: changesets
         uses: changesets/action@v1
         with:
           publish: npm run release
@@ -32,4 +41,3 @@ jobs:
           commit: "Version Packages (2.x)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
